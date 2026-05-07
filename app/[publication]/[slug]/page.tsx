@@ -1,16 +1,15 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { getPublicationBySlug, getArticleBySlug, getArticles, incrementArticleView, getCurrentProfile, toggleBookmark, isArticleBookmarked } from '@/lib/data'
+import { getPublicationBySlug, getArticleBySlug, getArticles, getCurrentProfile } from '@/lib/data'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { ArticleCard } from '@/components/publication/article-card'
-import { Clock, Eye, Calendar, Bookmark, Share2, MessageSquare, Lock, ArrowLeft } from 'lucide-react'
+import { Clock, Eye, Calendar, Share2, MessageSquare, Lock, ArrowLeft } from 'lucide-react'
 import { format } from 'date-fns'
-import { ArticleActions } from '@/components/publication/article-actions'
 
 interface ArticlePageProps {
   params: Promise<{ publication: string; slug: string }>
