@@ -1,185 +1,94 @@
 import Link from 'next/link'
-import { getPublications } from '@/lib/data'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowRight, Scale, Building2, Sparkles } from 'lucide-react'
+import { Ad } from '@/components/ad'
+import { Story } from '@/components/story'
+import { FirmCard } from '@/components/firm-card'
+import { NewsletterBand } from '@/components/newsletter-band'
+import { SECTORS, fmtDate, getArticles, getEvents, getFirms, getTracker, sectorSlug } from '@/lib/content'
 
-export default async function HomePage() {
-  const publications = await getPublications()
+export default async function Home() {
+  const [all, firms, events, tracker] = await Promise.all([getArticles(), getFirms(), getEvents(), getTracker()])
+  const lead = all.find((a) => a.kind === 'Analysis') ?? all[0]
+  const rest = all.filter((a) => a.slug !== lead.slug)
+  const secondary = rest.slice(0, 2)
+  const latest = [...all].slice(0, 8)
+  const spotlight = firms.filter((f) => f.tier !== 'free').slice(0, 2)
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <header className="border-b border-border">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-primary" />
-            <span className="font-bold text-xl">Legal Intelligence</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" asChild>
-              <Link href="/auth/login">Sign In</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/auth/sign-up">Get Started</Link>
-            </Button>
-          </div>
+    <>
+      <div className="ticker" aria-label="Regulatory headlines">
+        <div className="wrap">
+          {tracker.slice(0, 4).map((t) => (
+            <span key={t.id}><b>{t.region}</b>{t.title}</span>
+          ))}
         </div>
-      </header>
+      </div>
 
-      <main>
-        {/* Hero */}
-        <section className="py-20 md:py-32">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 text-balance">
-              AI-Powered Intelligence for
-              <span className="text-primary"> Legal Professionals</span>
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8 text-balance">
-              Expert analysis, breaking news, and AI-powered research across specialized legal verticals. 
-              Stay ahead with insights that matter.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild>
-                <Link href="#publications">
-                  Explore Publications
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href="/auth/sign-up">Start Free Trial</Link>
-              </Button>
+      <div className="wrap">
+        <Ad size="leader" />
+
+        <div className="home-grid">
+          <div>
+            <article className="lead">
+              <div className="lead-art" aria-hidden="true">{lead.sector} · {lead.region}</div>
+              <span className="kicker">{lead.kind} · {lead.sector}</span>
+              <h1><Link href={`/article/${lead.slug}`}>{lead.title}</Link></h1>
+              <p className="standfirst">{lead.standfirst}</p>
+              <span className="meta">{lead.author} · {fmtDate(lead.date)} · {lead.readMins} min read</span>
+            </article>
+            <div className="secondary">
+              {secondary.map((a) => <Story key={a.slug} a={a} />)}
             </div>
           </div>
-        </section>
 
-        {/* Features */}
-        <section className="py-16 bg-muted/30">
-          <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <Scale className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-semibold mb-2">Expert Analysis</h3>
-                <p className="text-sm text-muted-foreground">
-                  In-depth articles from leading practitioners and subject matter experts.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <Sparkles className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-semibold mb-2">AI Research Assistant</h3>
-                <p className="text-sm text-muted-foreground">
-                  Ask questions, get instant answers with citations from our content library.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <Building2 className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-semibold mb-2">Enterprise Ready</h3>
-                <p className="text-sm text-muted-foreground">
-                  Team access, API integration, and custom solutions for organizations.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Publications */}
-        <section id="publications" className="py-20">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Our Publications</h2>
-              <p className="text-muted-foreground max-w-xl mx-auto">
-                Specialized intelligence platforms delivering actionable insights for legal professionals.
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              {publications.map((publication) => (
-                <Card 
-                  key={publication.id} 
-                  className="group hover:shadow-lg transition-all duration-300 overflow-hidden"
-                >
-                  <CardHeader className="pb-4">
-                    <div 
-                      className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
-                      style={{ backgroundColor: `${publication.secondary_color}20` }}
-                    >
-                      {publication.slug === 'ip-law' ? (
-                        <Scale className="h-6 w-6" style={{ color: publication.secondary_color }} />
-                      ) : (
-                        <Building2 className="h-6 w-6" style={{ color: publication.secondary_color }} />
-                      )}
-                    </div>
-                    <CardTitle className="text-xl">{publication.name}</CardTitle>
-                    <CardDescription>{publication.tagline}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground mb-6">
-                      {publication.description}
-                    </p>
-                    <Button asChild className="w-full group-hover:bg-primary group-hover:text-primary-foreground">
-                      <Link href={`/${publication.slug}`}>
-                        Explore {publication.name}
-                        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
+          <aside className="side">
+            <h2>Latest</h2>
+            <ul className="latest">
+              {latest.map((a) => (
+                <li key={a.slug}>
+                  <Link href={`/article/${a.slug}`}>{a.title}</Link>
+                  <span className="meta">{a.sector} · {a.region} · {fmtDate(a.date)}</span>
+                </li>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section className="py-20 bg-primary text-primary-foreground">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
-            <p className="text-primary-foreground/80 max-w-xl mx-auto mb-8">
-              Join thousands of legal professionals who rely on our intelligence platforms 
-              for critical insights.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="secondary" asChild>
-                <Link href="/auth/sign-up">Start Free Trial</Link>
-              </Button>
-              <Button size="lg" variant="outline" className="bg-transparent border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10" asChild>
-                <Link href="/contact">Contact Sales</Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-border py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-muted-foreground" />
-              <span className="font-semibold">Legal Intelligence</span>
-            </div>
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <Link href="/privacy" className="hover:text-foreground transition-colors">
-                Privacy
-              </Link>
-              <Link href="/terms" className="hover:text-foreground transition-colors">
-                Terms
-              </Link>
-              <Link href="/contact" className="hover:text-foreground transition-colors">
-                Contact
-              </Link>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              &copy; {new Date().getFullYear()} Legal Intelligence. All rights reserved.
-            </p>
-          </div>
+            </ul>
+            <div style={{ marginTop: 20 }}><Ad size="mpu" /></div>
+          </aside>
         </div>
-      </footer>
-    </div>
+
+        <div className="rule-head"><h2>Regulatory tracker</h2><Link href="/tracker">Full tracker →</Link></div>
+        <div className="table-scroll">
+          <table className="tbl">
+            <thead><tr><th>Date</th><th>Region</th><th>Issuer</th><th>Item</th><th>Status</th></tr></thead>
+            <tbody>
+              {tracker.slice(0, 5).map((t) => (
+                <tr key={t.id}>
+                  <td>{fmtDate(t.date)}</td><td>{t.region}</td><td>{t.body}</td><td>{t.title}</td>
+                  <td><span className={`pill ${t.status.toLowerCase().replace(' ', '-')}`}>{t.status}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="rule-head"><h2>Sectors</h2></div>
+        <div className="sector-hubs">
+          {SECTORS.map((s) => <Link key={s} className="hub" href={`/sector/${sectorSlug(s)}`}>{s}</Link>)}
+        </div>
+
+        <div className="rule-head"><h2>Directory spotlight</h2><Link href="/directory">Browse the directory →</Link></div>
+        <div className="cols2">{spotlight.map((f) => <FirmCard key={f.slug} f={f} />)}</div>
+
+        <div className="rule-head"><h2>Events &amp; CPD</h2><Link href="/events">All events →</Link></div>
+        <div className="cols3">
+          {events.slice(0, 3).map((e) => (
+            <div className="tile" key={e.slug}>
+              <span className="kicker">{e.kind}</span>
+              <h3><Link href={`/events#${e.slug}`}>{e.title}</Link></h3>
+              <span className="meta">{fmtDate(e.date)} · {e.city}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <NewsletterBand source="home" />
+    </>
   )
 }

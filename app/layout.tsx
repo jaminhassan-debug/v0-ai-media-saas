@@ -1,43 +1,34 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { Header } from '@/components/header'
+import { Footer } from '@/components/footer'
 import './globals.css'
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://familywealthintelligence.com'
 
 export const metadata: Metadata = {
-  title: 'Legal Intelligence - IP Law & Family Wealth Insights',
-  description: 'Expert analysis and research on intellectual property law, patents, trademarks, and family wealth management strategies.',
-  generator: 'v0.app',
-  icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
-  },
+  metadataBase: new URL(SITE),
+  title: { default: 'Family Wealth Intelligence', template: '%s | Family Wealth Intelligence' },
+  description:
+    'News, analysis, directories and data for the lawyers, wealth managers, trustees and advisers who serve wealthy families in the UK, Europe, US and Asia.',
+  openGraph: { siteName: 'Family Wealth Intelligence', type: 'website' },
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="bg-background scroll-smooth">
-      <body className="font-sans antialiased bg-background text-foreground">
-        {children}
+    <html lang="en-GB">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Public+Sans:wght@400;500;600;700&display=swap"
+        />
+      </head>
+      <body>
+        <Header />
+        <main id="main">{children}</main>
+        <Footer />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
