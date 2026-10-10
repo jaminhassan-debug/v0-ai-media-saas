@@ -23,7 +23,7 @@ export function Header() {
           <span>{today}</span>
           <span className="regions">
             {REGIONS.map((r) => (
-              <Link key={r} href={`/news?region=${r}`}>{r}</Link>
+              <Link key={r} href={`/region/${r.toLowerCase()}`}>{r}</Link>
             ))}
           </span>
         </div>
