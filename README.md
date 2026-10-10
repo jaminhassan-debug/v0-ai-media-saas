@@ -9,24 +9,37 @@ pnpm dev          # http://localhost:3000
 pnpm typecheck && pnpm build
 ```
 
+## Hosting: GitHub Pages (static export)
+
+The site is a static export (`output: 'export'`), built and deployed by `.github/workflows/pages.yml` on every push to `main`.
+
+**One-time setup:** repo Settings → Pages → Source: **GitHub Actions**. The site then appears at
+`https://<owner>.github.io/<repo>/`.
+
+**Custom domain (familywealthintelligence.com):** Settings → Pages → Custom domain, point DNS at GitHub, then set repository
+variables `PAGES_BASE_PATH` = `-` (serve from the root) and `SITE_URL` = `https://familywealthintelligence.com`, and re-run the workflow.
+
 ## Structure
 
 | Path | Purpose |
 | --- | --- |
-| `app/` | Pages: home, news, analysis, sector hubs, article, directory (+ firm profile), data, tracker, events, newsletter, advertise, contact |
+| `app/` | Pages: home, news, region pages, analysis, sector hubs, article, directory (+ firm profile), data, tracker, events, newsletter, advertise, contact |
 | `lib/content.ts` | Types, **fictional seed data** and async getters. Pages only read through the getters, so swapping in Supabase touches this file only |
-| `components/ad.tsx` | Sellable ad slots (leaderboard, MPU) |
-| `app/api/subscribe`, `app/api/enquiry` | Newsletter sign-up and enquiry/claim forms. Store to Supabase; return 503 until configured |
-| `app/api/ingest` | Endpoint for content agents. Bearer-authenticated; everything lands as `pending_review` |
-| `supabase/schema.sql` | Tables and row-level security |
+| `lib/supabase.ts` | Browser client using the public publishable key. Row-level security allows visitors to insert sign-ups/enquiries and read published content only |
+| `supabase/schema.sql` | Tables and row-level security (applied to project `srdzgbacbtiitaqifizc`; form-insert policies are in migration `public_insert_forms`) |
+| `supabase/functions/ingest` | Edge Function for content agents. Header `x-ingest-secret`; everything lands as `pending_review` |
+
+No secrets live in this repo. The publishable key is public by design. Set the Edge Function secret `INGEST_SECRET` in the Supabase dashboard
+(Edge Functions → Secrets); until it is set, the function rejects every request.
 
 ## Going live: what is still to do
 
-1. Create a Supabase project, run `supabase/schema.sql`, and set the variables in `.env.example` on Vercel.
-2. Replace the read bodies in `lib/content.ts` with queries on `status = 'published'` rows.
-3. Point the content agents at `POST /api/ingest`. Add an editor review step (or use the Supabase table editor) to move items to `published`. Legal and tax content should always have human sign-off.
-4. Connect an email platform for the newsletter send, and Stripe for subscriptions and listing upgrades (checkout is deliberately not wired up yet).
-5. Replace all sample content, and confirm every price (all are illustrative) before issuing a rate card.
+1. Enable Pages (above) and set `INGEST_SECRET`.
+2. Replace the read bodies in `lib/content.ts` with queries on `status = 'published'` rows (build-time fetch; rebuild on publish via a scheduled or manual workflow run).
+3. Point the content agents at the ingest function. Legal and tax content should always have human sign-off before `status` becomes `published`.
+4. Email platform for newsletter sends; payments for subscriptions and listing upgrades (not wired up). A static site needs a hosted checkout link or a Supabase function for this.
+5. Replace all sample content, and confirm every price (all are illustrative).
+6. Form inserts are open to anonymous visitors (with length/format checks). Add CAPTCHA or rate limiting if spam appears.
 
 ## Notes on the code this replaced
 

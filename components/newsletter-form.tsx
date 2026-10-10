@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { browserClient } from '@/lib/supabase'
 
 export function NewsletterForm({ source = 'site' }: { source?: string }) {
   const [state, setState] = useState<'idle' | 'busy' | 'ok' | 'err'>('idle')
@@ -10,17 +11,16 @@ export function NewsletterForm({ source = 'site' }: { source?: string }) {
     const email = new FormData(e.currentTarget).get('email')
     setState('busy')
     try {
-      const res = await fetch('/api/subscribe', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email, source }),
-      })
-      const data = await res.json()
-      setState(res.ok ? 'ok' : 'err')
-      setMsg(res.ok ? 'Thanks — you are on the list.' : data.error ?? 'Something went wrong.')
-    } catch {
+      const db = browserClient()
+      if (!db) throw new Error('Sign-up is not configured yet.')
+      const { error } = await db.from('subscribers').insert({ email: String(email).trim().toLowerCase(), source })
+      // 23505 = already subscribed; treat as success
+      if (error && error.code !== '23505') throw new Error('Please enter a valid email address.')
+      setState('ok')
+      setMsg('Thanks \u2014 you are on the list.')
+    } catch (err) {
       setState('err')
-      setMsg('Network error. Please try again.')
+      setMsg(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     }
   }
 

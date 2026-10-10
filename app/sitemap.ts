@@ -3,6 +3,8 @@ import { articles, firms, SECTORS, sectorSlug } from '@/lib/content'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://familywealthintelligence.com'
 
+export const dynamic = 'force-static'
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const fixed = ['', '/news', '/analysis', '/directory', '/data', '/tracker', '/events', '/newsletter', '/advertise', '/contact']
   return [

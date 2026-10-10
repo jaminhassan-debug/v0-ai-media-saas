@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { browserClient } from '@/lib/supabase'
 
 export function EnquiryForm({ kind, target = '', cta = 'Send', topic = '' }: { kind: string; target?: string; cta?: string; topic?: string }) {
   const [state, setState] = useState<'idle' | 'busy' | 'ok' | 'err'>('idle')
@@ -10,17 +11,18 @@ export function EnquiryForm({ kind, target = '', cta = 'Send', topic = '' }: { k
     const fd = Object.fromEntries(new FormData(e.currentTarget))
     setState('busy')
     try {
-      const res = await fetch('/api/enquiry', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ...fd, kind, target, topic }),
+      const db = browserClient()
+      if (!db) throw new Error('Enquiries are not configured yet.')
+      const f = fd as Record<string, string>
+      const { error } = await db.from('enquiries').insert({
+        kind, topic, target, name: f.name, email: f.email, company: f.company, message: f.message,
       })
-      const data = await res.json()
-      setState(res.ok ? 'ok' : 'err')
-      setMsg(res.ok ? 'Thank you — we will be in touch.' : data.error ?? 'Something went wrong.')
-    } catch {
+      if (error) throw new Error('Could not send your message. Please check your details and try again.')
+      setState('ok')
+      setMsg('Thank you \u2014 we will be in touch.')
+    } catch (err) {
       setState('err')
-      setMsg('Network error. Please try again.')
+      setMsg(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     }
   }
 
