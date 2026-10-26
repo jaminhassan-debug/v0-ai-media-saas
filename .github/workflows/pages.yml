@@ -22,7 +22,6 @@ jobs:
       # Public values (safe to commit): the publishable key can only do what row-level security allows.
       NEXT_PUBLIC_SUPABASE_URL: https://srdzgbacbtiitaqifizc.supabase.co
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_mosmpJmbIhQGvmNTLgfXFQ_L_3Y06Sl
-      # Set repository variable PAGES_BASE_PATH to "-" once a custom domain is attached; default serves at /<repo>.
       NEXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}
     steps:
       - uses: actions/checkout@v4
@@ -37,10 +36,18 @@ jobs:
       - run: pnpm typecheck
       - name: Build static site
         run: |
-          BP="${{ vars.PAGES_BASE_PATH }}"
-          if [ -z "$BP" ]; then BP="/${{ github.event.repository.name }}"; fi
-          if [ "$BP" = "-" ]; then BP=""; fi
-          NEXT_PUBLIC_BASE_PATH="$BP" pnpm build
+          # A CNAME file means a custom domain: serve from the root. Otherwise serve from /<repo>.
+          # Repository variables PAGES_BASE_PATH ("-" for root) and SITE_URL override this.
+          if [ -f public/CNAME ]; then
+            BP=""; DOMAIN="$(tr -d '[:space:]' < public/CNAME)"
+            SITE="https://${DOMAIN}"
+          else
+            BP="/${{ github.event.repository.name }}"; SITE="$NEXT_PUBLIC_SITE_URL"
+          fi
+          if [ -n "${{ vars.PAGES_BASE_PATH }}" ]; then BP="${{ vars.PAGES_BASE_PATH }}"; [ "$BP" = "-" ] && BP=""; fi
+          if [ -n "${{ vars.SITE_URL }}" ]; then SITE="${{ vars.SITE_URL }}"; fi
+          echo "base path: '${BP}'  site: ${SITE}"
+          NEXT_PUBLIC_BASE_PATH="$BP" NEXT_PUBLIC_SITE_URL="$SITE" pnpm build
       - run: touch out/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
