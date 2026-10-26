@@ -35,6 +35,7 @@ export function Footer() {
             <ul>
               <li><Link href="/advertise">Advertise</Link></li>
               <li><Link href="/directory#claim">Claim your listing</Link></li>
+              <li><Link href="/about">About</Link></li>
               <li><Link href="/contact">Contact</Link></li>
             </ul>
           </div>

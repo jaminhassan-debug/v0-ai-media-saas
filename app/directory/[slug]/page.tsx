@@ -1,11 +1,13 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Story } from '@/components/story'
 import { EnquiryForm } from '@/components/enquiry-form'
-import { firms, getArticles, getFirm } from '@/lib/content'
+import { Story } from '@/components/story'
+import { getArticles, getFirm, getFirms } from '@/lib/content'
 
-export const generateStaticParams = () => firms.map((f) => ({ slug: f.slug }))
+export async function generateStaticParams() {
+  return (await getFirms()).map((f) => ({ slug: f.slug }))
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const f = await getFirm((await params).slug)
@@ -19,16 +21,21 @@ export default async function FirmPage({ params }: { params: Promise<{ slug: str
   return (
     <div className="wrap">
       <div className="page-head">
+        <Link href="/directory" className="linkbtn">← Directory</Link>
+        <br /><br />
         <span className={`tier ${f.tier}`}>{f.tier === 'free' ? 'Basic listing' : `${f.tier} listing`}</span>
-        <h1>{f.name}</h1>
+        <h1 style={{ marginTop: 8 }}>{f.name}</h1>
         <p>{f.type} · {f.city} · {f.regions.join(', ')}</p>
       </div>
       <div className="home-grid">
         <div>
-          <p style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>{f.summary}</p>
+          <p style={{ fontFamily: 'var(--serif)', fontSize: 21 }}>{f.summary}</p>
           <div className="tags">{f.sectors.map((s) => <span key={s} className="pill">{s}</span>)}</div>
-          {f.founded && <p className="meta" style={{ marginTop: 12 }}>Founded {f.founded}</p>}
-          {related.length > 0 && (<><div className="rule-head"><h2>In the news</h2></div>{related.map((a) => <Story key={a.slug} a={a} compact />)}</>)}
+          <p className="meta" style={{ marginTop: 14 }}>
+            {f.founded ? `Founded ${f.founded}. ` : ''}{f.size ? `${f.size}. ` : ''}
+            {f.claimed ? <span className="badge-ver">✓ Verified by firm</span> : 'Profile compiled from public sources; not yet verified by the firm.'}
+          </p>
+          {related.length > 0 && <><div className="rule-head"><h2>In the news</h2></div><div className="stack">{related.map((a) => <Story key={a.slug} a={a} compact />)}</div></>}
         </div>
         <aside>
           {f.claimed ? (
@@ -37,7 +44,11 @@ export default async function FirmPage({ params }: { params: Promise<{ slug: str
             <section id="claim" className="claim">
               <h3>Is this your firm?</h3>
               <p>This profile was compiled from public sources. Claim it to correct details, add your logo and receive enquiries.</p>
-              <Link className="btn brass" href={`/contact?topic=claim&firm=${f.slug}`}>Claim this listing</Link>
+              <div className="tiers" style={{ gridTemplateColumns: '1fr' }}>
+                <div className="tcard hot"><b>Featured</b><span className="price">£1,500<small> / year</small></span></div>
+                <div className="tcard"><b>Premium</b><span className="price">£4,500<small> / year</small></span></div>
+              </div>
+              <EnquiryForm kind="claim" target={f.slug} cta="Claim this listing" tone="brass" />
             </section>
           )}
         </aside>

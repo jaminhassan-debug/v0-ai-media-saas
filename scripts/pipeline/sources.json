@@ -1,0 +1,9 @@
+{
+  "_note": "Add or remove feeds here. Only public regulator and press-release feeds. Each feed is tagged with the region and sector hint the drafting step should assume.",
+  "feeds": [
+    { "name": "HM Revenue & Customs (GOV.UK)", "url": "https://www.gov.uk/government/organisations/hm-revenue-customs.atom", "region": "UK", "sector": "Tax", "tracker": true },
+    { "name": "HM Treasury (GOV.UK)", "url": "https://www.gov.uk/government/organisations/hm-treasury.atom", "region": "UK", "sector": "Regulation", "tracker": true },
+    { "name": "Charity Commission (GOV.UK)", "url": "https://www.gov.uk/government/organisations/charity-commission.atom", "region": "UK", "sector": "Philanthropy", "tracker": true },
+    { "name": "Ministry of Justice (GOV.UK)", "url": "https://www.gov.uk/government/organisations/ministry-of-justice.atom", "region": "UK", "sector": "Legal", "tracker": false }
+  ]
+}

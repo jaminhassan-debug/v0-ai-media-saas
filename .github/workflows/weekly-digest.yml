@@ -1,0 +1,27 @@
+name: Weekly newsletter digest
+# Builds the Friday digest from PUBLISHED content and attaches it as a downloadable artifact.
+on:
+  schedule:
+    - cron: '0 7 * * 5' # Fridays 07:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://srdzgbacbtiitaqifizc.supabase.co
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_mosmpJmbIhQGvmNTLgfXFQ_L_3Y06Sl
+      NEXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/digest/build.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: newsletter-digest
+          path: digest/

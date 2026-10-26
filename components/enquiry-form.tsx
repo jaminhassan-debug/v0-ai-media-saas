@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { browserClient } from '@/lib/supabase'
 
-export function EnquiryForm({ kind, target = '', cta = 'Send', topic = '' }: { kind: string; target?: string; cta?: string; topic?: string }) {
+export function EnquiryForm({ kind, target = '', cta = 'Send', topic = '', message = true, tone = '' }: { kind: string; target?: string; cta?: string; topic?: string; message?: boolean; tone?: string }) {
   const [state, setState] = useState<'idle' | 'busy' | 'ok' | 'err'>('idle')
   const [msg, setMsg] = useState('')
 
@@ -31,8 +31,8 @@ export function EnquiryForm({ kind, target = '', cta = 'Send', topic = '' }: { k
       <label>Name<input name="name" required autoComplete="name" /></label>
       <label>Work email<input name="email" type="email" required autoComplete="email" /></label>
       <label>Company<input name="company" autoComplete="organization" /></label>
-      <label>Message<textarea name="message" rows={4} /></label>
-      <button className="btn" disabled={state === 'busy'}>{state === 'busy' ? 'Sending…' : cta}</button>
+      {message && <label>Message<textarea name="message" rows={4} /></label>}
+      <button className={`btn ${tone}`} disabled={state === 'busy'}>{state === 'busy' ? 'Sending…' : cta}</button>
       {msg && <p role="status" className="meta">{msg}</p>}
     </form>
   )
