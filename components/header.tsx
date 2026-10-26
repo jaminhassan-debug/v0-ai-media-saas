@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { LogoMark } from './logo'
+import { SearchBox } from './search-box'
 import { REGIONS, SECTORS, sectorSlug } from '@/lib/content'
 
 const NAV = [
@@ -38,6 +39,7 @@ export function Header() {
             </span>
           </Link>
           <div className="mast-actions">
+            <SearchBox />
             <Link className="btn ghost small" href="/newsletter">Free newsletter</Link>
             <Link className="btn small" href="/data#plans">Subscribe</Link>
           </div>

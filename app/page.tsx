@@ -3,15 +3,16 @@ import { Ad } from '@/components/ad'
 import { Story } from '@/components/story'
 import { FirmCard } from '@/components/firm-card'
 import { NewsletterBand } from '@/components/newsletter-band'
-import { SECTORS, fmtDate, getArticles, getEvents, getFirms, getTracker, sectorSlug } from '@/lib/content'
+import { SECTORS, fmtDate, getArticles, getEvents, getFirms, getRankings, getTracker, sectorNotes, sectorSlug } from '@/lib/content'
 
 export default async function Home() {
-  const [all, firms, events, tracker] = await Promise.all([getArticles(), getFirms(), getEvents(), getTracker()])
+  const [all, firms, events, tracker, rankings] = await Promise.all([getArticles(), getFirms(), getEvents(), getTracker(), getRankings()])
+  const partner = all.find((a) => a.kind === 'Partner insight')
   const lead = all.find((a) => a.kind === 'Analysis') ?? all[0]
   const rest = all.filter((a) => a.slug !== lead.slug)
   const secondary = rest.slice(0, 2)
   const latest = [...all].slice(0, 8)
-  const spotlight = firms.filter((f) => f.tier !== 'free').slice(0, 2)
+  const spotlight = firms.filter((f) => f.tier !== 'free').slice(0, 4)
 
   return (
     <>
@@ -71,11 +72,31 @@ export default async function Home() {
 
         <div className="rule-head"><h2>Sectors</h2></div>
         <div className="sector-hubs">
-          {SECTORS.map((s) => <Link key={s} className="hub" href={`/sector/${sectorSlug(s)}`}>{s}</Link>)}
+          {SECTORS.map((s) => <Link key={s} className="hub" href={`/sector/${sectorSlug(s)}`}>{s}<small>{sectorNotes[s]}</small></Link>)}
         </div>
+
+        {partner && (
+          <>
+            <div className="rule-head"><h2>Partner insight</h2><span className="meta">Sponsored content</span></div>
+            <div className="tile paid"><Story a={partner} /></div>
+          </>
+        )}
 
         <div className="rule-head"><h2>Directory spotlight</h2><Link href="/directory">Browse the directory →</Link></div>
         <div className="cols2">{spotlight.map((f) => <FirmCard key={f.slug} f={f} />)}</div>
+
+        <div className="rule-head"><h2>Data &amp; rankings</h2><Link href="/data">All data →</Link></div>
+        <div className="cols2">
+          {rankings.slice(0, 2).map((r) => (
+            <div className="tile" key={r.slug}>
+              <span className="kicker">{r.region} · sample</span>
+              <h3>{r.title}</h3>
+              <table className="tbl" style={{ minWidth: 0 }}>
+                <tbody>{r.rows.slice(0, 3).map((row, i) => <tr key={i}>{row.slice(0, 3).map((c, j) => <td key={j} className="num">{c}</td>)}</tr>)}</tbody>
+              </table>
+            </div>
+          ))}
+        </div>
 
         <div className="rule-head"><h2>Events &amp; CPD</h2><Link href="/events">All events →</Link></div>
         <div className="cols3">

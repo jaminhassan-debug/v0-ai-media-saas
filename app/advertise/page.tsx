@@ -1,41 +1,35 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import { EnquiryForm } from '@/components/enquiry-form'
+import { products } from '@/lib/content'
 
 export const metadata: Metadata = { title: 'Advertise' }
-
-const products: [string, string, string][] = [
-  ['Directory listing — Featured', '£1,500 / yr', 'Priority placement, enquiry form, full profile'],
-  ['Directory listing — Premium', '£4,500 / yr', 'Top placement, newsletter mentions, linked articles'],
-  ['Newsletter primary sponsor', '£1,200 / issue', 'Top slot and logo in the weekly digest'],
-  ['Newsletter classified', '£400 / issue', 'Short text placement'],
-  ['Display advertising', '£35 CPM', 'Leaderboard and MPU across the site'],
-  ['Section sponsorship', '£6,000 / quarter', 'Own News, Analysis or a sector hub'],
-  ['Sponsored content', '£3,500 each', 'Labelled partner insight article'],
-  ['Report sponsorship', '£8,000+', 'Sponsor a ranking or research report'],
-  ['CPD webinar sponsorship', '£2,500', 'Co-hosted CPD session'],
-  ['Summit sponsorship', '£4,000 – £20,000', 'Packages at the annual London summit'],
-]
 
 export default function Advertise() {
   return (
     <div className="wrap">
       <div className="page-head">
         <h1>Advertise with Family Wealth Intelligence</h1>
-        <p>Reach the lawyers, trustees, wealth managers and family offices who advise wealthy families.</p>
+        <p>Reach the lawyers, trustees, wealth managers and family offices who advise wealthy families in the UK, Europe, US and Asia.</p>
       </div>
-      <div className="claim">
+      <div className="claim" style={{ marginTop: 20 }}>
         <h3>Founding partner offer</h3>
-        <p>A limited number of founding partners receive discounted annual packages and priority placement at launch.</p>
-        <Link className="btn brass" href="/contact?topic=advertise">Request the media pack</Link>
+        <p>A limited number of founding partners receive discounted annual packages and priority placement at launch, in return for an annual commitment.</p>
       </div>
-      <div className="rule-head"><h2>Rate card</h2></div>
+      <div className="cols3" style={{ marginTop: 24 }}>
+        <div className="tile"><span className="kicker">Audience</span><h3>Advisers, not consumers</h3><p className="meta">Private client lawyers, tax advisers, trustees, wealth managers and family office executives.</p></div>
+        <div className="tile"><span className="kicker">Regions</span><h3>UK first, then global</h3><p className="meta">UK from launch, Europe from month seven, US and Asia from month ten.</p></div>
+        <div className="tile"><span className="kicker">Format</span><h3>Labelled and clear</h3><p className="meta">All sponsored content is labelled. Editorial stays independent.</p></div>
+      </div>
+      <div className="rule-head"><h2>Rate card</h2><span className="meta">Illustrative starting prices</span></div>
       <div className="table-scroll">
         <table className="tbl">
           <thead><tr><th>Product</th><th>From</th><th>Includes</th></tr></thead>
-          <tbody>{products.map(([n, p, d]) => <tr key={n}><td><b>{n}</b></td><td>{p}</td><td>{d}</td></tr>)}</tbody>
+          <tbody>{products.map((p) => <tr key={p.name}><td><b>{p.name}</b></td><td className="num">{p.price}</td><td>{p.includes}</td></tr>)}</tbody>
         </table>
       </div>
-      <p className="sample-note">Illustrative starting prices for testing against your market. Confirm before issuing a media pack.</p>
+      <p className="sample-note">Confirm every price against your market before issuing a media pack.</p>
+      <div className="rule-head"><h2>Request the media pack</h2></div>
+      <EnquiryForm kind="media-pack" target="advertise" cta="Request media pack" tone="brass" />
     </div>
   )
 }

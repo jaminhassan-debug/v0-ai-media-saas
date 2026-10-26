@@ -47,6 +47,7 @@ create table if not exists tracker_items (
   status_label text not null,
   sector text not null,
   item_date date not null,
+  closes date,
   source text default 'editor',
   source_url text,
   status text not null default 'pending_review' check (status in ('pending_review','approved','published','rejected')),
@@ -56,6 +57,7 @@ create table if not exists tracker_items (
 create table if not exists subscribers (
   email text primary key,
   source text,
+  prefs jsonb,
   created_at timestamptz not null default now()
 );
 
