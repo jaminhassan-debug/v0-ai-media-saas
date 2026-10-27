@@ -60,6 +60,7 @@ function loadArticles() {
         sponsor: r.sponsor ? str(r.sponsor) : undefined,
         firms: arr<string>(r.firms),
         body,
+        sources: arr<{ title: string; url: string }>(r.sources),
       }
     })
   })

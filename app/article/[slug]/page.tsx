@@ -45,6 +45,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               </div>
             </div>
           )}
+          {a.sources && a.sources.length > 0 && (
+            <section className="sources">
+              <h2 style={{ fontSize: 18, marginBottom: 8 }}>Sources</h2>
+              <ul>{a.sources.map((x) => <li key={x.url}><a href={x.url} target="_blank" rel="noopener noreferrer">{x.title}</a></li>)}</ul>
+              <p className="note">FWI summarises the sources above and does not reproduce them. Read the original before relying on it.</p>
+            </section>
+          )}
           {mentioned.length > 0 && (
             <section className="mentioned">
               <h2 style={{ fontSize: 20, marginBottom: 12 }}>Firms mentioned</h2>

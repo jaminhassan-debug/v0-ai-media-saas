@@ -19,6 +19,7 @@ export interface Article {
   sponsor?: string
   firms?: string[]
   body: string[]
+  sources?: { title: string; url: string }[]
 }
 
 export interface Firm {

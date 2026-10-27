@@ -14,7 +14,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
 const TABLES = {
-  article: { table: 'articles', fields: ['slug', 'title', 'standfirst', 'kind', 'sector', 'region', 'author', 'body', 'firms', 'source_url'] },
+  article: { table: 'articles', fields: ['slug', 'title', 'standfirst', 'kind', 'sector', 'region', 'author', 'body', 'firms', 'source_url', 'sources'] },
   firm: { table: 'firms', fields: ['slug', 'name', 'type', 'sectors', 'regions', 'city', 'summary', 'website', 'source_url'] },
   tracker: { table: 'tracker_items', fields: ['slug', 'region', 'body', 'title', 'status_label', 'sector', 'item_date', 'closes', 'source_url'] },
 } as const

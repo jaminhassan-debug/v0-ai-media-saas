@@ -14,7 +14,7 @@ export default async function Tracker() {
       <div className="wrap">
         <div className="page-head">
           <h1>Regulatory tracker</h1>
-          <p>Consultations, proposals and guidance affecting private clients, trusts and family offices, by jurisdiction. Sample entries shown.</p>
+          <p>Consultations, proposals and guidance affecting private clients, trusts and family offices, by jurisdiction.</p>
         </div>
         <Ad size="leader" />
         <TrackerExplorer items={items} />

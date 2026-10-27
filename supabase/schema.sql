@@ -17,6 +17,7 @@ create table if not exists articles (
   firms text[] default '{}',
   source text default 'editor',            -- 'editor' | 'agent'
   source_url text,                          -- provenance for agent drafts
+  sources jsonb,                            -- [{title,url}] shown under the article
   status text not null default 'pending_review' check (status in ('pending_review','approved','published','rejected')),
   published_at timestamptz,
   created_at timestamptz not null default now()
