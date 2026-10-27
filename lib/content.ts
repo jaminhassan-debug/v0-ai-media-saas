@@ -17,20 +17,22 @@ export const regionSlug = (r: string) => r.toLowerCase()
 
 type Row = Record<string, unknown>
 
+// Returns null ONLY when Supabase is not configured (local development). If it is configured but
+// unreachable (for example a paused project), this THROWS so the build fails and the last good
+// deploy stays live, instead of silently publishing the fictional seed data over real content.
 async function remote(table: string): Promise<Row[] | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
   if (!url || !key) return null
-  try {
-    const res = await fetch(`${url}/rest/v1/${table}?status=eq.published&select=*&limit=1000`, {
-      headers: { apikey: key, Authorization: `Bearer ${key}` },
-      cache: 'force-cache',
-    })
-    if (!res.ok) return null
-    return (await res.json()) as Row[]
-  } catch {
-    return null
-  }
+  const res = await fetch(`${url}/rest/v1/${table}?status=eq.published&select=*&limit=1000`, {
+    headers: { apikey: key, Authorization: `Bearer ${key}` },
+    cache: 'force-cache',
+    signal: AbortSignal.timeout(20000),
+  }).catch((e: unknown) => {
+    throw new Error(`Supabase unreachable while reading "${table}" (is the project paused?): ${e instanceof Error ? e.message : e}`)
+  })
+  if (!res.ok) throw new Error(`Supabase returned HTTP ${res.status} reading "${table}" (is the project paused?)`)
+  return (await res.json()) as Row[]
 }
 
 const str = (v: unknown, d = '') => (typeof v === 'string' ? v : d)
